@@ -48,7 +48,11 @@ module top(input  logic        clk, reset,
   // instantiate processor and memories
   riscvsingle rvsingle(clk, reset, PC, Instr, MemWrite, DataAdr, 
                        WriteData, ReadData);
+
+  //* Instruction Memory              
   imem imem(PC, Instr);
+  
+  //* Data Memory
   dmem dmem(clk, MemWrite, DataAdr, WriteData, ReadData);
 endmodule
 
@@ -59,12 +63,15 @@ module riscvsingle(input  logic        clk, reset,
                    output logic [31:0] ALUResult, WriteData,
                    input  logic [31:0] ReadData);
 
+  //* Jump é para implementação do jal
   logic       ALUSrc, RegWrite, Jump, Zero;
-  logic [1:0] ResultSrc, ImmSrc;
+  //* ResultSRC equivale a MemToReg, possui 2 bits para implementar o jal
+  logic [1:0] ResultSrc,  ;
   logic [2:0] ALUControl;
 
+  // ? não tem o MemRead pois ele será representado por MemWrite = 0
   controller c(Instr[6:0], Instr[14:12], Instr[30], Zero,
-               ResultSrc, MemWrite, PCSrc,
+               ResultSrc, MemWrite, PCSrc,    
                ALUSrc, RegWrite, Jump,
                ImmSrc, ALUControl);
   datapath dp(clk, reset, ResultSrc, PCSrc,
@@ -74,6 +81,12 @@ module riscvsingle(input  logic        clk, reset,
               ALUResult, WriteData, ReadData);
 endmodule
 
+
+/**
+  *! Esse controller trata apenas de instruções do tipo R
+  *! Qualquer instrução que utilizem imediato(Tipos I, S e B) não irão funcionar
+  *todo verificar se é necessário fazer operçãos and e or com registradores de mais de 1 bit
+*/
 module controller(input  logic [6:0] op,
                   input  logic [2:0] funct3,
                   input  logic       funct7b5,
@@ -92,6 +105,7 @@ module controller(input  logic [6:0] op,
              ALUSrc, RegWrite, Jump, ImmSrc, ALUOp);
   aludec  ad(op[5], funct3, funct7b5, ALUOp, ALUControl);
 
+  // ! assign PCSrc = (Branch & Zero) | Jump;
   assign PCSrc = Branch & Zero;
 endmodule
 
