@@ -119,8 +119,9 @@ module maindec(input  logic [6:0] op,
 
   logic [10:0] controls;
 
+  //* Um dos erros era a falta do Jump no vetor de bits, corrijimos isso
   assign {RegWrite, ImmSrc, ALUSrc, MemWrite,
-          ResultSrc, Branch, ALUOp} = controls;
+          ResultSrc, Branch, ALUOp, Jump} = controls;
 
   always_comb
     case(op)
