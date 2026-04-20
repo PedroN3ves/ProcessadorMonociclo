@@ -105,8 +105,7 @@ module controller(input  logic [6:0] op,
              ALUSrc, RegWrite, Jump, ImmSrc, ALUOp);
   aludec  ad(op[5], funct3, funct7b5, ALUOp, ALUControl);
 
-  // ! assign PCSrc = (Branch & Zero) | Jump;
-  assign PCSrc = Branch & Zero;
+  assign PCSrc = (Branch & Zero) | Jump;
 endmodule
 
 module maindec(input  logic [6:0] op,
@@ -131,6 +130,7 @@ module maindec(input  logic [6:0] op,
       7'b0110011: controls = 11'b1_xx_0_0_00_0_10_0; // R-type 
       7'b1100011: controls = 11'b0_10_0_0_00_1_01_0; // beq
       7'b0010011: controls = 11'b1_00_1_0_00_0_10_0; //* addi (estava faltando, adicionado agora)
+      7'b1101111: controls = 11'b1_11_x_0_10_0_xx_1; //* jal  (estava faltando, adicionado agora)
       default:    controls = 11'bx_xx_x_x_xx_x_xx_x; // non-implemented instruction
     endcase
 endmodule
