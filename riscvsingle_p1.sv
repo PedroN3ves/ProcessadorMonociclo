@@ -73,7 +73,7 @@ module riscvsingle(input  logic        clk, reset,
   controller c(Instr[6:0], Instr[14:12], Instr[30], Zero,
                ResultSrc, MemWrite, PCSrc,    
                ALUSrc, RegWrite, Jump,
-               ImmSrc, ALUControl);
+               ImmSrc, ALUControl); 
   datapath dp(clk, reset, ResultSrc, PCSrc,
               ALUSrc, RegWrite,
               ImmSrc, ALUControl,
@@ -143,7 +143,11 @@ module aludec(input  logic       opb5,
 
   logic  RtypeSub;
   assign RtypeSub = funct7b5 & opb5;  // TRUE for R-type subtract instruction
-
+  /*
+  todo (ALUop)00 - lw/sw
+  todo (ALUop)01 - beq
+  todo (ALUop)10 - R-Type
+  */
   always_comb
     case(ALUOp)
       2'b00:                ALUControl = 3'b000; // addition
@@ -192,7 +196,8 @@ module datapath(input  logic        clk, reset,
   // ALU logic
   mux2 #(32)  srcbmux(WriteData, ImmExt, ALUSrc, SrcB);
   alu         alu(SrcA, SrcB, ALUControl, ALUResult, Zero);
-  mux3 #(32)  resultmux(ALUResult, ReadData, 32'b0, ResultSrc, Result);
+  //* corrigindo o terceiro parâmetro, que deveria ser a próxima linha lida (pc + 4)
+  mux3 #(32)  resultmux(ALUResult, ReadData, PCPlus4, ResultSrc, Result);
 endmodule
 
 module regfile(input  logic        clk, 
