@@ -63,9 +63,9 @@ module riscvsingle(input  logic        clk, reset,
                    output logic [31:0] ALUResult, WriteData,
                    input  logic [31:0] ReadData);
 
-  //* Jump é para implementação do jal
+  //todo Jump é para implementação do jal
   logic       ALUSrc, RegWrite, Jump, Zero;
-  //* ResultSRC equivale a MemToReg, possui 2 bits para implementar o jal
+  //todo ResultSRC equivale a MemToReg, possui 2 bits para implementar o jal
   logic [1:0] ResultSrc,  ;
   logic [2:0] ALUControl;
 
@@ -206,6 +206,7 @@ module regfile(input  logic        clk,
                input  logic [31:0] wd3, 
                output logic [31:0] rd1, rd2);
 
+  //todo Criação da memória com os 32 registradores
   logic [31:0] rf[31:0];
 
   // three ported register file
@@ -213,6 +214,7 @@ module regfile(input  logic        clk,
   // write third port on rising edge of clock (A3/WD3/WE3)
   // register 0 hardwired to 0
 
+  //todo Na subida do clock, do registrador 3(Write register) vai ser atualizado com o valro de Write data se RegWrite estiver em alto
   always_ff @(posedge clk)
     if (we3) rf[a3] <= wd3;	
 
@@ -230,11 +232,23 @@ module extend(input  logic [31:7] instr,
               input  logic [1:0]  immsrc,
               output logic [31:0] immext);
  
+  /* 
+  todo Tabela ImmSrc:
+  todo    00 : Tipo-I
+  todo    01 : Tipo-S
+  todo    10 : Tipo-B
+  todo    11 : Tipo-J
+  */
   always_comb
     case(immsrc) 
+      2'b00:   immext = {{20{instr[31]}}, instr[31:20]};
+               // Tipo-I
       2'b01:   immext = {{20{instr[31]}}, instr[31:25], instr[11:7]}; 
-               // B-type (branches)
+               // Tipo-S 
+      2'b10:   immext = {{{}, }} // ! a ser feito
+               // Tipo-B         
       2'b11:   immext = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0}; 
+               // Tipo-J
       default: immext = 32'bx; // undefined
     endcase             
 endmodule
