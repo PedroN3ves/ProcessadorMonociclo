@@ -69,7 +69,7 @@ module riscvsingle(input  logic        clk, reset,
   logic [1:0] ResultSrc,  ;
   logic [2:0] ALUControl;
 
-  // ? não tem o MemRead pois ele será representado por MemWrite = 0
+  //? não tem o MemRead pois ele será representado por MemWrite = 0
   controller c(Instr[6:0], Instr[14:12], Instr[30], Zero,
                ResultSrc, MemWrite, PCSrc,    
                ALUSrc, RegWrite, Jump,
@@ -238,6 +238,7 @@ module extend(input  logic [31:7] instr,
   todo    01 : Tipo-S
   todo    10 : Tipo-B
   todo    11 : Tipo-J
+  * Adicionado todos os tipos que faltavam
   */
   always_comb
     case(immsrc) 
@@ -245,7 +246,7 @@ module extend(input  logic [31:7] instr,
                // Tipo-I
       2'b01:   immext = {{20{instr[31]}}, instr[31:25], instr[11:7]}; 
                // Tipo-S 
-      2'b10:   immext = {{{}, }} // ! a ser feito
+      2'b10:   immext = {{20{instr[31]}, instr[7], instr[30:25], instr[11:8], 1'b0}} 
                // Tipo-B         
       2'b11:   immext = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0}; 
                // Tipo-J
@@ -276,6 +277,7 @@ module mux3 #(parameter WIDTH = 8)
               input  logic [1:0]       s, 
               output logic [WIDTH-1:0] y);
 
+  //? 10, 01, 00 
   assign y = s[1] ? d2 : (s[0] ? d1 : d0); 
 endmodule
 
@@ -314,7 +316,7 @@ module alu(input  logic [31:0] a, b,
   assign condinvb = alucontrol[0] ? ~b : b;
   assign sum = a + condinvb + alucontrol[0];
   assign isAddSub = ~alucontrol[2] & ~alucontrol[1] |
-                    ~alucontrol[1] & alucontrol[0];
+                    ~alucontrol[1] & alucontrol[0]; // (0 e 1) ou (1 e 0) = 0
 
   always_comb
     case (alucontrol)
