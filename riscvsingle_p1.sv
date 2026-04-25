@@ -66,7 +66,7 @@ module riscvsingle(input  logic        clk, reset,
   //todo Jump é para implementação do jal
   logic       ALUSrc, RegWrite, Jump, Zero;
   //todo ResultSRC equivale a MemToReg, possui 2 bits para implementar o jal
-  logic [1:0] ResultSrc,  ;
+  logic [1:0] ResultSrc,  ImmSrc;
   logic [2:0] ALUControl;
 
   //? não tem o MemRead pois ele será representado por MemWrite = 0
@@ -81,12 +81,6 @@ module riscvsingle(input  logic        clk, reset,
               ALUResult, WriteData, ReadData);
 endmodule
 
-
-/**
-  *! Esse controller trata apenas de instruções do tipo R
-  *! Qualquer instrução que utilizem imediato(Tipos I, S e B) não irão funcionar
-  *todo verificar se é necessário fazer operçãos and e or com registradores de mais de 1 bit
-*/
 module controller(input  logic [6:0] op,
                   input  logic [2:0] funct3,
                   input  logic       funct7b5,
@@ -246,7 +240,7 @@ module extend(input  logic [31:7] instr,
                // Tipo-I
       2'b01:   immext = {{20{instr[31]}}, instr[31:25], instr[11:7]}; 
                // Tipo-S 
-      2'b10:   immext = {{20{instr[31]}, instr[7], instr[30:25], instr[11:8], 1'b0}} 
+      2'b10:   immext = {{20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0};
                // Tipo-B         
       2'b11:   immext = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0}; 
                // Tipo-J
